@@ -1,9 +1,8 @@
 
 #include "GmailIMAP.h"
 
-GmailImap::GmailImap(Logger& _logger) : logger(_logger), msgIndex(0)
+GmailImap::GmailImap(Logger &_logger) : logger(_logger), msgIndex(0)
 {
-
 }
 
 bool GmailImap::connect()
@@ -13,24 +12,29 @@ bool GmailImap::connect()
 		logger.logLine("Could not connect to mail server");
 		return false;
 	}
- String str;
- recvResponseLine(str);
+	std::string str;
+	readAllResponses();
 	sendCommandAndRecvResponse("LOGIN acshayo@gmail.com Madhima10");
 	sendCommandAndRecvResponse("select INBOX");
-	sendCommand("fetch 1 full");
+	sendCommandAndRecvResponse("fetch 1 full");
+
+	return true;
 }
 
-bool GmailImap::selectFolder(const char* folder)
+bool GmailImap::selectFolder(const char *folder)
 {
 	return true;
 }
 
-bool GmailImap::sendCommandAndRecvResponse(const char* msg)
+bool GmailImap::sendCommandAndRecvResponse(const char *msg)
 {
 	msgIndex++;
 
-	String cmd(TAG_PREFIX);
-	cmd += msgIndex;
+	char numstr[21];
+
+	std::string cmd;
+	cmd.push_back(TAG_PREFIX);
+	cmd += itoa(msgIndex, numstr, 10);
 	cmd += " ";
 	cmd += msg;
 	logger.log("Sent: ");
@@ -41,7 +45,7 @@ bool GmailImap::sendCommandAndRecvResponse(const char* msg)
 		return false;
 	}
 
-	String response = "";
+	std::string response = "";
 	do
 	{
 		if (!recvResponseLine(response))
@@ -57,17 +61,20 @@ bool GmailImap::sendCommandAndRecvResponse(const char* msg)
 
 		if (response[0] == TAG_PREFIX)
 		{
-			//validate index
-			int end = response.indexOf(1, " ");
-			int respIndex = response.substring(1, end);
-			if (respIndex.toInt() != msgIndex)
+			//validate message index
+			int end = response.find(' ', 1);
+			std::string respIndex = response.substr(1, end);
+			if (std::atoi(respIndex.c_str()) != msgIndex)
 			{
 				logger.logLine("ERROR: Got wrong index");
 				return false;
 			}
 
 			//validate returned OK
-			if (response.substring(end + 1, end + 3).equals("OK") != 0)
+			logger.log("===");
+			logger.log(response.substr(end + 1, 2).c_str());
+			logger.logLine("===");
+			if (response.substr(end + 1, 2).compare("OK") != 0)
 			{
 				logger.logLine("ERROR: Got not OK");
 				return false;
@@ -84,25 +91,44 @@ bool GmailImap::sendCommandAndRecvResponse(const char* msg)
 	return true;
 }
 
-bool GmailImap::sendCommand(const char* msg)
+bool GmailImap::sendCommand(const char *msg)
 {
 	sslClient.print(msg);
 	sslClient.print("\r\n");
 	return true;
 }
 
-bool GmailImap::recvResponseLine(String& response)
+bool GmailImap::recvResponseLine(std::string &response)
 {
 	response = "";
 	uint32_t ts = millis();
 	while (!sslClient.available())
 	{
-		if (millis() > (ts + RESPONSE_TIOMOUT)) {
+		if (millis() > (ts + RESPONSE_TIMEOUT))
+		{
 			logger.logLine("ERROR: Communication timed out");
 			return false;
 		}
 	}
-	response = sslClient.readStringUntil('\n');
+	response = sslClient.readStringUntil('\n').c_str();
 	logger.logLine(response.c_str());
+	return true;
+}
+
+bool GmailImap::readAllResponses()
+{
+	while (true)
+	{
+		uint32_t ts = millis();
+		while (!sslClient.available())
+		{
+			if (millis() > (ts + EMPTY_RESPONSES_TIMEOUT))
+			{
+				return true;
+			}
+		}
+		logger.logLine(sslClient.readStringUntil('\n').c_str());
+	}
+
 	return true;
 }

@@ -32,6 +32,6 @@ bool WifiConnector::connect()
 	}
 	logger.logLine("Connection: ESTABLISHED");
 	logger.log("Got IP address: ");
-	//logger.logLine(WiFi.localIP());
+	logger.logLine(WiFi.localIP().toString().c_str());
 	return true;
 }

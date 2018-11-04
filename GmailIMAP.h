@@ -1,19 +1,20 @@
 #pragma once
 
-#include <WiFiClientSecure.h>
 #include <string>
+#include <WiFiClientSecure.h>
 #include "Logger.h"
 
 class GmailImap
 {
 protected:
 	static constexpr int	IMAP_PORT = 993;
-	static constexpr char*	IMAP_SERVER = "imap.gmail.com";
-	static constexpr int	RESPONSE_TIOMOUT = 10000;
+	const char*	IMAP_SERVER = "imap.gmail.com";
+	static constexpr int	RESPONSE_TIMEOUT = 10000;
+	static constexpr int	EMPTY_RESPONSES_TIMEOUT = 5000;
 	static constexpr char	TAG_PREFIX = 'A';
 
-	String userName;
-	String password;
+	std::string userName;
+	std::string password;
 
 	WiFiClientSecure	sslClient;
 	Logger&				logger;
@@ -30,5 +31,6 @@ public:
 protected:
 	bool sendCommand(const char*);
 	bool sendCommandAndRecvResponse(const char*);
-	bool recvResponseLine(String& response);
+	bool recvResponseLine(std::string& response);
+	bool readAllResponses();
 };

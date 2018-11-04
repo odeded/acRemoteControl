@@ -14,12 +14,12 @@ void Logger::logLine(const char* msg)
 
 void Logger::log(const char* msg)
 {
-	Serial.println(msg);
+	Serial.print(msg);
 }
 
 void Logger::log(int num)
 {
-  Serial.println(num);
+  Serial.print(num);
 }
 
 void Logger::logLine(int num)

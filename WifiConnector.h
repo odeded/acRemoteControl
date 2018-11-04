@@ -1,12 +1,13 @@
 #pragma once
 
+#include <string>
 #include "Logger.h"
 
 class WifiConnector
 {
 private:
-	String ssid;
-	String password;
+	std::string ssid;
+	std::string password;
 
 	Logger& logger;
 
