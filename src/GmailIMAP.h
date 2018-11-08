@@ -3,6 +3,7 @@
 #include <string>
 #include <WiFiClientSecure.h>
 #include "Logger.h"
+#include "mailItem.h"
 
 class GmailImap
 {
@@ -25,12 +26,15 @@ public:
 	//void setLogger(Logger& logger);
 
 	bool connect();
+	void disconnect();
 	bool selectFolder(const char* folder);
 	//void readMessage();
+	bool getFirstMailBySubject(std::string& subject, MailItem& mail);
 
 protected:
-	bool sendCommand(const char*);
-	bool sendCommandAndRecvResponse(const char*);
+	bool sendCommand(const std::string& message);
+	bool sendCommandGetResponse(const std::string& message, std::string& response);
+	bool sendCommandWithoutResponse(const std::string& message);
 	bool recvResponseLine(std::string& response);
 	bool readAllResponses();
 };

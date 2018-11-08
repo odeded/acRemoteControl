@@ -14,29 +14,76 @@ bool GmailImap::connect()
 	}
 	std::string str;
 	readAllResponses();
-	sendCommandAndRecvResponse("LOGIN acshayo@gmail.com Madhima10");
-	sendCommandAndRecvResponse("select INBOX");
-	sendCommandAndRecvResponse("fetch 1 full");
+	sendCommandWithoutResponse("LOGIN acshayo@gmail.com Madhima10");
+	return true;
+}
+
+void GmailImap::disconnect()
+{
+	//sendCommandWithoutResponse("EXPUNGE");
+	sendCommandWithoutResponse("CLOSE");
+}
+
+bool GmailImap::getFirstMailBySubject(std::string& subject, MailItem& mail)
+{
+	char numstr[21];
+	std::string command = "";
+	std::string response = "";
+
+	command = "SEARCH SUBJECT \"";
+	command += subject;
+	command += "\"";
+	if (!sendCommandGetResponse(command, response))
+	{
+		return false;
+	}
+
+	//find first mail index
+	#define SEARCH_PREFIX "* SEARCH "
+	int startIndex = response.find(SEARCH_PREFIX);
+	if (startIndex == std::string::npos)
+	{
+		return false;
+	}
+	startIndex += strlen(SEARCH_PREFIX);
+	int index = strtol(response.c_str()+startIndex, NULL, 10);
+
+	command = "FETCH ";
+	command += itoa(index, numstr, 10);
+	command += " BODY[TEXT]";
+	if (!sendCommandGetResponse(command, response))
+	{
+		return false;
+	}
 
 	return true;
 }
 
 bool GmailImap::selectFolder(const char *folder)
 {
+	std::string cmd = "select ";
+	cmd += folder;
+	sendCommandWithoutResponse(cmd);
 	return true;
 }
 
-bool GmailImap::sendCommandAndRecvResponse(const char *msg)
+bool GmailImap::sendCommandWithoutResponse(const std::string& message)
 {
-	msgIndex++;
+	std::string str;
+	return sendCommandGetResponse(message, str);
+}
 
+bool GmailImap::sendCommandGetResponse(const std::string& message, std::string& response)
+{
 	char numstr[21];
+	response = "";
+	msgIndex++;
 
 	std::string cmd;
 	cmd.push_back(TAG_PREFIX);
 	cmd += itoa(msgIndex, numstr, 10);
 	cmd += " ";
-	cmd += msg;
+	cmd += message;
 	logger.log("Sent: ");
 	logger.logLine(cmd.c_str());
 	if (!sendCommand(cmd.c_str()))
@@ -45,25 +92,26 @@ bool GmailImap::sendCommandAndRecvResponse(const char *msg)
 		return false;
 	}
 
-	std::string response = "";
+	std::string responseLine = "";
 	do
 	{
-		if (!recvResponseLine(response))
+		if (!recvResponseLine(responseLine))
 		{
 			logger.logLine("ERROR: Failed getting response line");
 			return false;
 		}
+		response += responseLine;
 
-		if (response[0] == '*' || response[0] == '+')
+		if (responseLine[0] == '*' || responseLine[0] == '+')
 		{
 			continue;
 		}
 
-		if (response[0] == TAG_PREFIX)
+		if (responseLine[0] == TAG_PREFIX)
 		{
 			//validate message index
-			int end = response.find(' ', 1);
-			std::string respIndex = response.substr(1, end);
+			int end = responseLine.find(' ', 1);
+			std::string respIndex = responseLine.substr(1, end);
 			if (std::atoi(respIndex.c_str()) != msgIndex)
 			{
 				logger.logLine("ERROR: Got wrong index");
@@ -72,9 +120,9 @@ bool GmailImap::sendCommandAndRecvResponse(const char *msg)
 
 			//validate returned OK
 			logger.log("===");
-			logger.log(response.substr(end + 1, 2).c_str());
+			logger.log(responseLine.substr(end + 1, 2).c_str());
 			logger.logLine("===");
-			if (response.substr(end + 1, 2).compare("OK") != 0)
+			if (responseLine.substr(end + 1, 2).compare("OK") != 0)
 			{
 				logger.logLine("ERROR: Got not OK");
 				return false;
@@ -83,24 +131,24 @@ bool GmailImap::sendCommandAndRecvResponse(const char *msg)
 			break;
 		}
 
-		logger.logLine("ERROR: Unkown tag");
-		return false;
+		//logger.logLine("ERROR: Unkown tag");
+		//return false;
 
 	} while (true);
 
 	return true;
 }
 
-bool GmailImap::sendCommand(const char *msg)
+bool GmailImap::sendCommand(const std::string &message)
 {
-	sslClient.print(msg);
+	sslClient.print(message.c_str());
 	sslClient.print("\r\n");
 	return true;
 }
 
-bool GmailImap::recvResponseLine(std::string &response)
+bool GmailImap::recvResponseLine(std::string &responseLine)
 {
-	response = "";
+	responseLine = "";
 	uint32_t ts = millis();
 	while (!sslClient.available())
 	{
@@ -110,8 +158,8 @@ bool GmailImap::recvResponseLine(std::string &response)
 			return false;
 		}
 	}
-	response = sslClient.readStringUntil('\n').c_str();
-	logger.logLine(response.c_str());
+	responseLine = sslClient.readStringUntil('\n').c_str();
+	logger.logLine(responseLine.c_str());
 	return true;
 }
 
