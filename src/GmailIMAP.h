@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
-#include <WiFiClientSecure.h>
 #include "Logger.h"
 #include "mailItem.h"
+#include <string>
+#include <list>
+#include <WiFiClientSecure.h>
 
 class GmailImap
 {
@@ -21,15 +22,15 @@ protected:
 	Logger&				logger;
 	int					msgIndex;
 public:
+	using IndexesList = std::list<int>;
+	
 	GmailImap(Logger& logger);
-
-	//void setLogger(Logger& logger);
 
 	bool connect();
 	void disconnect();
 	bool selectFolder(const char* folder);
-	//void readMessage();
-	bool getFirstMailBySubject(std::string& subject, MailItem& mail);
+	bool getMail(int index, MailItem &mail);
+	bool searchMailsBySubject(std::string &subject, IndexesList& indexList);
 
 protected:
 	bool sendCommand(const std::string& message);
@@ -37,4 +38,8 @@ protected:
 	bool sendCommandWithoutResponse(const std::string& message);
 	bool recvResponseLine(std::string& response);
 	bool readAllResponses();
+	bool readBuffer(std::string& buffer, int size);
+
+	bool validateTaggedLine(std::string& responseLine);
+	std::string readLiteral(std::string& responseLine);
 };
