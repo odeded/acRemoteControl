@@ -2,7 +2,8 @@
 #include "GmailIMAP.h"
 #include <sstream>
 
-GmailImap::GmailImap(Logger &_logger) : logger(_logger), msgIndex(0)
+GmailImap::GmailImap(Logger &_logger, std::string _user, std::string _password) : 
+	logger(_logger), user(_user), password(_password), msgIndex(0)
 {
 }
 
@@ -10,13 +11,21 @@ bool GmailImap::connect()
 {
 	if (!sslClient.connect(IMAP_SERVER, IMAP_PORT))
 	{
-		logger.logLine("Could not connect to mail server");
+		logger.logLine("ERROR: Could not connect to mail server");
 		return false;
 	}
-	std::string str;
+
 	readAllResponses();
-	if (!sendCommandWithoutResponse("LOGIN acshayo@gmail.com Madhima10"))
+
+	std::string cmd = "";
+	cmd += "LOGIN ";
+	cmd += user + " " + password;
+
+	if (!sendCommandWithoutResponse(cmd.c_str()))
+	{
+		logger.logLine("ERROR: wrong user/password");
 		return false;
+	}
 	return true;
 }
 
@@ -31,7 +40,7 @@ bool GmailImap::selectFolder(const char *folder)
 
 void GmailImap::disconnect()
 {
-	//sendCommandWithoutResponse("EXPUNGE");
+	sendCommandWithoutResponse("EXPUNGE");
 	sendCommandWithoutResponse("CLOSE");
 }
 
@@ -58,7 +67,7 @@ bool GmailImap::searchMailsBySubject(std::string &subject, IndexesList &mailsInd
 	startIndex += strlen(SEARCH_PREFIX);
 
 	std::stringstream stream(response.substr(startIndex));
-	while (1)
+	while (true)
 	{
 		int n;
 		stream >> n;
@@ -67,6 +76,7 @@ bool GmailImap::searchMailsBySubject(std::string &subject, IndexesList &mailsInd
 			break;
 		mailsIndexes.push_back(n);
 	}
+	return true;
 }
 
 bool GmailImap::getMail(int index, MailItem &mail)
@@ -74,11 +84,32 @@ bool GmailImap::getMail(int index, MailItem &mail)
 	char numstr[21];
 	std::string command = "";
 	std::string response = "";
+	std::string literal = "";
 
 	command = "FETCH ";
 	command += itoa(index, numstr, 10);
 	command += " BODY[TEXT]";
-	if (!sendCommandGetResponse(command, response))
+	if (!sendCommandGetResponse(command, response, &literal))
+	{
+		return false;
+	}
+
+	mail.index = index;
+	mail.body = literal;
+
+	return true;
+}
+
+bool GmailImap::deleteMail(int index)
+{
+	char numstr[21];
+	std::string command = "";
+	std::string response = "";
+
+	command = "STORE ";
+	command += itoa(index, numstr, 10);
+	command += " +FLAGS (\\Deleted)";
+	if (!sendCommandWithoutResponse(command))
 	{
 		return false;
 	}
@@ -92,7 +123,7 @@ bool GmailImap::sendCommandWithoutResponse(const std::string &message)
 	return sendCommandGetResponse(message, str);
 }
 
-bool GmailImap::sendCommandGetResponse(const std::string &message, std::string &response)
+bool GmailImap::sendCommandGetResponse(const std::string &message, std::string &response, std::string* literal)
 {
 	char numstr[21];
 	response = "";
@@ -130,8 +161,16 @@ bool GmailImap::sendCommandGetResponse(const std::string &message, std::string &
 
 		if (responseLine[0] == '*' || responseLine[0] == '+')
 		{
-			std::string literal = readLiteral(responseLine);
-			response += literal;
+			std::string tempLiteral;
+			tempLiteral = readLiteral(responseLine);
+			if (!tempLiteral.empty()) 
+			{
+				if (literal != nullptr)
+				{
+					*literal = tempLiteral;
+				}
+				response += tempLiteral;
+			}
 			continue;
 		}
 
@@ -165,10 +204,6 @@ std::string GmailImap::readLiteral(std::string &responseLine)
 	}
 
 	int literalSize = std::atoi(responseLine.substr(openBraceIndex + 1, closeBraceIndex - openBraceIndex - 1).c_str());
-	logger.log("==Reading ");
-	logger.log(literalSize);
-	logger.logLine(" chars==");
-
 	if (literalSize == 0)
 	{
 		return "";

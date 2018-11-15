@@ -6,7 +6,7 @@
 
 Logger logger(9600);
 WifiConnector wifi("Oded2", "21065739", logger);
-GmailImap gmailImap(logger);
+GmailImap gmailImap(logger, "acshayo@gmail.com", "Madhima10");
 
 #define BREAK_ON_FAILUE(X) \
   if (!X)                  \
@@ -31,7 +31,10 @@ void setup()
     for (GmailImap::IndexesList::iterator itr=mails.begin(); itr != mails.end(); ++itr)
     {
       gmailImap.getMail(*itr, mail);
+      logger.logLine(mail.body.c_str());
     }
+    //BREAK_ON_FAILUE(gmailImap.deleteMail(*(mails.begin())));
+
   } while (false);
   gmailImap.disconnect();
 }
