@@ -1,6 +1,7 @@
 
 #include "Logger.h"
 #include <HardwareSerial.h>
+#include <esp_log.h>
 
 Logger::Logger(int baud)
 {
