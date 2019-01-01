@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "mailItem.h"
+#include "WifiConnector.h"
 #include <string>
 #include <list>
 #include <WiFiClientSecure.h>
@@ -19,12 +20,15 @@ protected:
 	std::string 		user;
 	std::string 		password;
 
+    WifiConnector&      wifiConnector;
+
+    int					msgIndex;
 	WiFiClientSecure	sslClient;
-	int					msgIndex;
 public:
 	using IndexesList = std::list<int>;
 	
-	GmailImap(Logger& logger, std::string _user, std::string _password);
+	GmailImap(Logger& logger, std::string& _user, std::string& _password, WifiConnector& wifiConnector);
+    ~GmailImap();
 
 	bool connect();
 	void disconnect();

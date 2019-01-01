@@ -2,13 +2,22 @@
 #include "GmailIMAP.h"
 #include <sstream>
 
-GmailImap::GmailImap(Logger &_logger, std::string _user, std::string _password) : 
-	logger(_logger), user(_user), password(_password), msgIndex(0)
+GmailImap::GmailImap(Logger& _logger, std::string& _user, std::string& _password,
+                     WifiConnector& _wifiConnector) : 
+	logger(_logger), user(_user), password(_password), 
+    wifiConnector(_wifiConnector), 
+    msgIndex(0)
 {
+}
+
+GmailImap::~GmailImap()
+{
+    disconnect();
 }
 
 bool GmailImap::connect()
 {
+    wifiConnector.connect();
 	if (!sslClient.connect(IMAP_SERVER, IMAP_PORT))
 	{
 		logger.logLine("ERROR: Could not connect to mail server");
@@ -29,6 +38,15 @@ bool GmailImap::connect()
 	return true;
 }
 
+void GmailImap::disconnect()
+{
+	sendCommandWithoutResponse("EXPUNGE");
+	sendCommandWithoutResponse("CLOSE");
+
+    sslClient.stop();
+    wifiConnector.disconnect();
+}
+
 bool GmailImap::selectFolder(const char *folder)
 {
 	std::string cmd = "select ";
@@ -36,12 +54,6 @@ bool GmailImap::selectFolder(const char *folder)
 	if (!sendCommandWithoutResponse(cmd))
 		return false;
 	return true;
-}
-
-void GmailImap::disconnect()
-{
-	sendCommandWithoutResponse("EXPUNGE");
-	sendCommandWithoutResponse("CLOSE");
 }
 
 bool GmailImap::searchMailsBySubject(std::string &subject, IndexesList &mailsIndexes)
@@ -111,6 +123,10 @@ bool GmailImap::deleteMail(int index)
 	command += " +FLAGS (\\Deleted)";
 	if (!sendCommandWithoutResponse(command))
 	{
+        logger.log("ERROR: Failed deleting index ");
+        logger.log(index);
+        logger.logLine("");
+
 		return false;
 	}
 

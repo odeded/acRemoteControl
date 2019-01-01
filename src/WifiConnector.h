@@ -6,13 +6,14 @@
 class WifiConnector
 {
 private:
-	std::string ssid;
-	std::string password;
-
-	Logger& logger;
-
+    Logger& logger;
+    char ssid[30];
+    char password[30];
+	
 public:
-	WifiConnector(const char* _ssid, const char* _password, Logger& _logger);
+	WifiConnector(Logger& _logger, const char* _ssid, const char* _password);
+    ~WifiConnector();
 
 	bool connect();
+    bool disconnect();
 };

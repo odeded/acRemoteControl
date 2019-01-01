@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CommandsProvider.h"
+#include "IAcIrCommands.h"
 
-class AcIrCommands
+class AcIrCommands : public IAcIrCommands
 {
 public:
     void sendOn(int temp);
