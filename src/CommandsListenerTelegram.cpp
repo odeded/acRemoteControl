@@ -1,7 +1,6 @@
+#include "ConstsPrivate.h"
 #include "CommandsListenerTelegram.h"
 #include "Esp32Thread.h"
-
-#define BOTtoken "780591531:AAFopQBi21wHTtboBZ3ZjzqBf_BBSQGKC4s" // your Bot Token (Get from Botfather)
 
 int Bot_mtbs = 1000; //mean time between scan messages
 long Bot_lasttime;   //last time messages' scan has been done

@@ -1,4 +1,5 @@
 
+#include "ConstsPrivate.h"
 #include "WifiConnector.h"
 #include "Logger.h"
 //#include "CommandsListenerGmail.h"
@@ -9,12 +10,12 @@
 
 
 Logger logger(9600);
-WifiConnector wifi(logger, "Oded2", "21065739");
+WifiConnector wifi(logger, WIFI_SSID, WIFI_PASSWORD);
 CommandsProvider cmdProvider;
 //CommandsListenerGmail *cmdListener;
 CommandsListenerTelegram *cmdListener;
-std::string mailUser = "acshayo@gmail.com";
-std::string mailPassword = "Madhima10";
+std::string mailUser = AC_GMAIL_USER;
+std::string mailPassword = AC_GMAIL_PASSWORD;
 std::string mailCmdIdentifier = "AC Command";
 
 void setup()
