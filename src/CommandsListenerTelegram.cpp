@@ -30,7 +30,7 @@ void CommandsListenerTelegram::mainLoop(void *)
 {
     wifiConnector.connect();
 
-    logger.logLine("before loop");
+    logger.logLine("Starting telegram bot listener");
     while (true)
     {
         if (millis() > Bot_lasttime + Bot_mtbs)
@@ -39,10 +39,11 @@ void CommandsListenerTelegram::mainLoop(void *)
 
             while (numNewMessages)
             {
-                logger.logLine("got response2");
                 for (int i = 0; i < numNewMessages; i++)
                 {
-                    bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].text, "");
+                    std::string result;
+                    commandsProvider.runCommand(bot.messages[i].text.c_str(), result);
+                    bot.sendMessage(bot.messages[i].chat_id, result.c_str(), "");
                 }
                 numNewMessages = bot.getUpdates(bot.last_message_received + 1);
             }

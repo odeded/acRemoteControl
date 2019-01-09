@@ -13,7 +13,7 @@ bool CommandsProvider::registerCommand(std::string &commandStr, const command_t 
     return true;
 }
 
-bool CommandsProvider::runCommand(std::string& commandFullStr)
+bool CommandsProvider::runCommand(std::string commandFullStr, std::string& result)
 {
     //find command & args
     int i = commandFullStr.find(' ');
@@ -31,9 +31,10 @@ bool CommandsProvider::runCommand(std::string& commandFullStr)
     auto cmdItr = commandsMap.find(commandStr);
     if (cmdItr == commandsMap.end())
     {
-       return false;
+        result = "ERROR: Command not fould";
+        return false;
     }
     
     command_t& cmdFunc = cmdItr->second;
-    cmdFunc(cmdArgs);
+    return cmdFunc(cmdArgs, result);
 }

@@ -53,7 +53,8 @@ void CommandsListenerGmail::mainLoop(void*)
                 gmailMailReader.deleteMail(mail.index);
                 logger.log("Running command ");
                 logger.logLine(mail.body.c_str());
-                if (!commandsProvider.runCommand(mail.body))
+                std::string result;
+                if (!commandsProvider.runCommand(mail.body, result))
                 {
                     logger.log("Failed running command ");
                     logger.logLine(mail.body.c_str());
