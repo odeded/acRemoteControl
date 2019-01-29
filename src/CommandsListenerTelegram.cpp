@@ -41,6 +41,9 @@ void CommandsListenerTelegram::mainLoop(void *)
             {
                 for (int i = 0; i < numNewMessages; i++)
                 {
+                    logger.log("got Line \"");
+                    logger.log(bot.messages[i].text.c_str());
+                    logger.logLine("\"");
                     std::string result;
                     commandsProvider.runCommand(bot.messages[i].text.c_str(), result);
                     bot.sendMessage(bot.messages[i].chat_id, result.c_str(), "");

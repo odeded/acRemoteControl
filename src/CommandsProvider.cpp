@@ -1,13 +1,15 @@
 
 #include "CommandsProvider.h"
+#include <algorithm>
 
-bool CommandsProvider::registerCommand(std::string &commandStr, const command_t &command_cb)
+bool CommandsProvider::registerCommand(std::string commandStr, const command_t &command_cb)
 {
     if (commandStr.empty())
     {
         return false;
     }
 
+    std::transform(commandStr.begin(), commandStr.end(), commandStr.begin(), ::tolower);
     commandsMap[commandStr] = command_cb;
 
     return true;
@@ -26,8 +28,8 @@ bool CommandsProvider::runCommand(std::string commandFullStr, std::string& resul
     {
         i = commandFullStr.size();
     }
-    std::string commandStr = commandFullStr.substr(i);
-
+    std::string commandStr = commandFullStr.substr(0, i);
+    std::transform(commandStr.begin(), commandStr.end(), commandStr.begin(), ::tolower);
     auto cmdItr = commandsMap.find(commandStr);
     if (cmdItr == commandsMap.end())
     {
