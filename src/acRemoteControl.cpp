@@ -6,6 +6,7 @@
 #include "CommandsListenerTelegram.h"
 #include "CommandsProvider.h"
 #include "SetPinCommands.h"
+#include "AcIrCommands.h"
 #include <Arduino.h>
 #include <WiFi.h>
 
@@ -19,6 +20,8 @@ std::string mailUser = AC_GMAIL_USER;
 std::string mailPassword = AC_GMAIL_PASSWORD;
 std::string mailCmdIdentifier = "AC Command";
 
+AcIrCommands acRemote(21);
+
 void setup()
 {
     logger.logLine("Starting....");
@@ -29,11 +32,12 @@ void setup()
     //                                        20, cmdProvider, mailCmdIdentifier);
     //cmdListenerGmail->start();
     
-    cmdListenerTelegram = new CommandsListenerTelegram(logger, wifi, cmdProvider);
-    cmdListenerTelegram->start();
+    //cmdListenerTelegram = new CommandsListenerTelegram(logger, wifi, cmdProvider);
+    //cmdListenerTelegram->start();
 }
 
 void loop()
 {
-    delay(111111);
+    acRemote.sendSome();
+    delay(4000);
 }
