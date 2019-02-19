@@ -54,5 +54,6 @@ bool WifiConnector::connect()
 bool WifiConnector::disconnect()
 {
     WiFi.disconnect();
+    return true;
 }
 

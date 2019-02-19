@@ -1,9 +1,10 @@
+#include "electraAcRemoteEncoder.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
-#include "electraAcRemoteEncoder.h"
 
 void initializeStruct (struct airCon* newAcPointer)
 {

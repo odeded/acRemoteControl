@@ -1,6 +1,8 @@
 #ifndef ELECTRA_AC_REMOTE_ENCODER_H
 #define ELECTRA_AC_REMOTE_ENCODER_H
 
+#include <inttypes.h>
+
 #define FULL_STATE_MASK 0x200000002
 #define ON_STATE_MASK   0x1
 #define FAN_MASK        0x3
@@ -10,7 +12,7 @@
 #define COOL            0x1
 #define HEAT            0x2
 #define SWING_OFF       0x0
-#define SWING_ON	0x1
+#define SWING_ON	    0x1
 #define SWING_SINGLE    0x2
 #define OFF             0x0
 #define ON              0x1

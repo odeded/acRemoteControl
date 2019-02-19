@@ -26,5 +26,4 @@ private:
 
     WiFiClientSecure client;
     UniversalTelegramBot bot;
-
 };

@@ -1,5 +1,6 @@
-#include "ConstsPrivate.h"
 #include "CommandsListenerTelegram.h"
+
+#include "ConstsPrivate.h"
 #include "Esp32Thread.h"
 
 int Bot_mtbs = 1000; //mean time between scan messages
@@ -7,9 +8,8 @@ long Bot_lasttime;   //last time messages' scan has been done
 
 CommandsListenerTelegram::CommandsListenerTelegram(
     Logger &_logger, WifiConnector &_wifiConnector, CommandsProvider &_commandsProvider)
-    : logger(_logger), wifiConnector(_wifiConnector),
-      ICommandsListener(_commandsProvider), client(),
-      bot(BOTtoken, client)
+    : ICommandsListener(_commandsProvider), logger(_logger), wifiConnector(_wifiConnector),
+      client(), bot(BOTtoken, client)
 {
 }
 
