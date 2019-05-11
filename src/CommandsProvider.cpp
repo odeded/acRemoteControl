@@ -33,7 +33,7 @@ bool CommandsProvider::runCommand(std::string commandFullStr, std::string& resul
     auto cmdItr = commandsMap.find(commandStr);
     if (cmdItr == commandsMap.end())
     {
-        result = "ERROR: Command not fould";
+        result = "ERROR: Command not found";
         return false;
     }
     

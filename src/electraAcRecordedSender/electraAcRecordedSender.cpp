@@ -49,10 +49,18 @@ electraAcRecordedSender::electraAcRecordedSender(int _IRledPin) : IRledPin(_IRle
 void electraAcRecordedSender::sendAcCoolCommand(int temp)
 {
     SendBuffer(coolIrBuffer[temp]);
+    delayMicroseconds(100);
+    SendBuffer(coolIrBuffer[temp]);
+    delayMicroseconds(100);
+    SendBuffer(coolIrBuffer[temp]);
 }
 
 void electraAcRecordedSender::sendAcHeatCommand(int temp)
 {
+    SendBuffer(heatIrBuffer[temp]);
+    delayMicroseconds(100);
+    SendBuffer(heatIrBuffer[temp]);
+    delayMicroseconds(100);
     SendBuffer(heatIrBuffer[temp]);
 }
 

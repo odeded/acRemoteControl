@@ -9,43 +9,14 @@
 
 int AcIrCommands::IRledPin = 21;
 //ElectraAcRemoteSender AcIrCommands::acIrSender(AcIrCommands::IRledPin);
-//electraAcRecordedSender AcIrCommands::acIrSender(AcIrCommands::IRledPin);
+electraAcRecordedSender AcIrCommands::acIrSender(AcIrCommands::IRledPin);
 
-bool AcIrCommands::toCool = false;
-bool AcIrCommands::toHeat = false;
-int  AcIrCommands::toTemp = 0;
-
-void AcIrCommands::sendSome()
-{
-    Serial.println("Sending 4...");
-
-    //acIrSender.sendAcCommand(ElectraAcRemoteSender::State::on,
-    //                         ElectraAcRemoteSender::Fan::high,
-    //                        ElectraAcRemoteSender::Mode::cool,
-    //                         26);
-
-    //struct airCon newAc;l
-    //int *codes;
-
-    //int fanStrength = 3;
-    //int acMode = HEAT; //1=cold, 2=hot
-    //int temperature = 27;
-    //int state = 0; //0=on, 1=off
-    //int acSwing = SWING_OFF;
-
-    //codes = getCodes(&newAc,fanStrength,acMode,temperature,state,acSwing);
-    //irRemoteSendRaw(codes,TIMINGS_LENGTH);
-}
+std::queue<AcIrCommands::AcCmd> AcIrCommands::commandsQueue;
+//electraAcRecordedSender AcIrCommands::acSender(21);
 
 bool AcIrCommands::setOff(std::string &cmd, std::string &resultMsg)
 {
-    //acIrSender.sendAcCommand(ElectraAcRemoteSender::State::on,
-    //                         ElectraAcRemoteSender::Fan::high,
-    //                         ElectraAcRemoteSender::Mode::cool,
-    //                         25);
-    //acIrSender.sendAcCoolCommand(25);
-    toCool = true;
-    toTemp = 25;
+    commandsQueue.push(AcCmd{false, AcCmd::cool, 25});
     resultMsg = "Turning off";
     return true;
 }
@@ -89,22 +60,62 @@ int AcIrCommands::getTemp(std::string tempStr)
 
 void AcIrCommands::setCoolTemp(int temp)
 {
-    //acIrSender.sendAcCommand(ElectraAcRemoteSender::State::on,
-    //                         ElectraAcRemoteSender::Fan::high,
-    //                         ElectraAcRemoteSender::Mode::cool,
-    //                         temp);
-    toCool = true;
-    toTemp = temp;
-    //acIrSender.sendAcCoolCommand(temp);
+    commandsQueue.push(AcCmd{true, AcCmd::cool, temp});
 }
 
 void AcIrCommands::setHeatTemp(int temp)
 {
+    commandsQueue.push(AcCmd{true, AcCmd::heat, temp});
+}
+
+bool AcIrCommands::checkAndHandleQueue()
+{
+    if (commandsQueue.empty())
+    {
+        return false;
+    }
+
+    AcCmd cmd = commandsQueue.front();
+    commandsQueue.pop();
+
+    if (!cmd.on)
+    {
+        acIrSender.sendAcCoolCommand(25);
+        //logger.logLine("Sent off IR");
+    }
+    if (cmd.type == AcCmd::cool)
+    {
+        acIrSender.sendAcCoolCommand(cmd.temp);
+        //logger.log("Sent cool temp=");
+        //logger.logLine(cmd.temp);
+    }
+    else if (cmd.type == AcCmd::heat)
+    {
+        acIrSender.sendAcHeatCommand(cmd.temp);
+        //logger.log("Sent heat temp=");
+        //logger.logLine(cmd.temp);
+    }
+
+    return true;
+}
+
+void AcIrCommands::sendSome()
+{
+    Serial.println("Sending 4...");
     //acIrSender.sendAcCommand(ElectraAcRemoteSender::State::on,
     //                         ElectraAcRemoteSender::Fan::high,
-    //                         ElectraAcRemoteSender::Mode::heat,
-    //                         temp);
-    toHeat = true;
-    toTemp = temp;
-    //acIrSender.sendAcHeatCommand(temp);
+    //                        ElectraAcRemoteSender::Mode::cool,
+    //                         26);
+
+    //struct airCon newAc;l
+    //int *codes;
+
+    //int fanStrength = 3;
+    //int acMode = HEAT; //1=cold, 2=hot
+    //int temperature = 27;
+    //int state = 0; //0=on, 1=off
+    //int acSwing = SWING_OFF;
+
+    //codes = getCodes(&newAc,fanStrength,acMode,temperature,state,acSwing);
+    //irRemoteSendRaw(codes,TIMINGS_LENGTH);
 }

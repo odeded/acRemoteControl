@@ -41,25 +41,15 @@ void setup()
 }
 
 electraAcRecordedSender acSender(21);
-int delayMainLoopSec = 10000;
+int delayMainLoopSec = 10000; //in 1st round wait 10sec for letting all to start correctly
 
 void loop()
 {
     delay(delayMainLoopSec);
     delayMainLoopSec = 1000;
     
-    if (AcIrCommands::toCool)
+    if (AcIrCommands::checkAndHandleQueue())
     {
-        AcIrCommands::toCool = false;
-        acSender.sendAcCoolCommand(AcIrCommands::toTemp);
-        logger.logLine("Sent cool");
-        delayMainLoopSec = 5000;
-    }
-    if (false && AcIrCommands::toHeat)
-    {
-        AcIrCommands::toHeat = false;
-        acSender.sendAcHeatCommand(AcIrCommands::toTemp);
-        logger.logLine("Sent heat");
         delayMainLoopSec = 5000;
     }
 }
