@@ -14,6 +14,8 @@ electraAcRecordedSender AcIrCommands::acIrSender(AcIrCommands::IRledPin);
 std::queue<AcIrCommands::AcCmd> AcIrCommands::commandsQueue;
 //electraAcRecordedSender AcIrCommands::acSender(21);
 
+RgbLed AcIrCommands::rgbLed(25, 26, 27);
+
 bool AcIrCommands::setOff(std::string &cmd, std::string &resultMsg)
 {
     commandsQueue.push(AcCmd{false, AcCmd::cool, 25});
@@ -81,19 +83,25 @@ bool AcIrCommands::checkAndHandleQueue()
     if (!cmd.on)
     {
         acIrSender.sendAcCoolCommand(25);
+        rgbLed.setColor(0, 255, 0);
         //logger.logLine("Sent off IR");
     }
-    if (cmd.type == AcCmd::cool)
+    else
     {
-        acIrSender.sendAcCoolCommand(cmd.temp);
-        //logger.log("Sent cool temp=");
-        //logger.logLine(cmd.temp);
-    }
-    else if (cmd.type == AcCmd::heat)
-    {
-        acIrSender.sendAcHeatCommand(cmd.temp);
-        //logger.log("Sent heat temp=");
-        //logger.logLine(cmd.temp);
+        if (cmd.type == AcCmd::cool)
+        {
+            acIrSender.sendAcCoolCommand(cmd.temp);
+            rgbLed.setColor(0, 0, 255);
+            //logger.log("Sent cool temp=");
+            //logger.logLine(cmd.temp);
+        }
+        else if (cmd.type == AcCmd::heat)
+        {
+            acIrSender.sendAcHeatCommand(cmd.temp);
+            rgbLed.setColor(255, 0, 0);
+            //logger.log("Sent heat temp=");
+            //logger.logLine(cmd.temp);
+        }
     }
 
     return true;

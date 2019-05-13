@@ -2,6 +2,7 @@
 
 #include "CommandsProvider.h"
 #include "IAcIrCommands.h"
+#include "RgbLed.h"
 //#include "Electra-AC-Remote-Encoder/ElectraAcRemoteSender.h"
 #include "electraAcRecordedSender/electraAcRecordedSender.h"
 #include <queue>
@@ -28,6 +29,8 @@ private:
     static int IRledPin;
     //static ElectraAcRemoteSender acIrSender;
     static electraAcRecordedSender acIrSender;
+
+    static RgbLed rgbLed;
 
 public:
 
