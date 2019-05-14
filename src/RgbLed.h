@@ -22,12 +22,12 @@ public:
     };
 
     void setColor(int red, int green, int blue);
-    void setColor(RgbLed::color _color);
+    void setColor(color _color);
     
     using tuple_type = std::tuple<int, int, int>;
-    using map_type = std::map<RgbLed::color, tuple_type>;
+    using map_type = std::map<color, tuple_type>;
 
-    static map_type colorValues;
+    static const map_type colorValues;
 private:
     //LED Pins
 	int redPin;
