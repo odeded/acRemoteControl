@@ -2,16 +2,16 @@
 
 #include "Arduino.h"
 
-RgbLed::map_type RgbLed::colorValues = {
-    {RgbLed::color::WHITE, {255, 255, 255}},
-    {RgbLed::color::BLACK, {0, 0, 0}},
-    {RgbLed::color::RED, {255, 0, 0}},
-    {RgbLed::color::GREEN, {0, 255, 0}},
-    {RgbLed::color::BLUE, {0, 0, 255}},
-    {RgbLed::color::GRAY, {128, 128, 128}},
-    {RgbLed::color::YELLOW, {255, 255, 0}},
-    {RgbLed::color::CYAN, {0, 255, 255}},
-    {RgbLed::color::MAGENTA, {255, 0, 255}}
+const RgbLed::map_type RgbLed::colorValues = {
+    {color::WHITE, {255, 255, 255}},
+    {color::BLACK, {0, 0, 0}},
+    {color::RED, {255, 0, 0}},
+    {color::GREEN, {0, 255, 0}},
+    {color::BLUE, {0, 0, 255}},
+    {color::GRAY, {128, 128, 128}},
+    {color::YELLOW, {255, 255, 0}},
+    {color::CYAN, {0, 255, 255}},
+    {color::MAGENTA, {255, 0, 255}}
 };
 
 RgbLed::RgbLed(int rPin, int gPin, int bPin)
