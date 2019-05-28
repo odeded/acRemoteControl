@@ -60,7 +60,6 @@ String UniversalTelegramBot::sendGetToTelegram(String command) {
       Serial.println(F(".... connected to server"));
 
     String a = "";
-    char c;
     int ch_count = 0;
     client->println("GET /" + command);
     now = millis();
@@ -129,7 +128,6 @@ String UniversalTelegramBot::sendPostToTelegram(String command,
     client->println(out);
 
     int ch_count = 0;
-    char c;
     now = millis();
     responseReceived = false;
     bool finishedHeaders = false;
@@ -239,7 +237,6 @@ String UniversalTelegramBot::sendMultipartFormDataToTelegram(
 
     byte buffer[512];
     int count = 0;
-    char ch;
     while (moreDataAvailableCallback()) {
       buffer[count] = getNextByteCallback();
       // client->write(ch);
@@ -268,7 +265,6 @@ String UniversalTelegramBot::sendMultipartFormDataToTelegram(
 
     count = 0;
     int ch_count = 0;
-    char c;
     now = millis();
     bool finishedHeaders = false;
     bool currentLineIsBlank = true;
