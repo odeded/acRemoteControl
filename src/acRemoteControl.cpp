@@ -6,31 +6,42 @@
 #include "CommandsListenerTelegram.h"
 #include "CommandsProvider.h"
 #include "SetPinCommands.h"
+#include "AcController.h"
 #include "AcIrCommands.h"
+#include "TimedCommands.h"
+#include "timeManager.h"
+
 #include <Arduino.h>
 #include <WiFi.h>
-
 
 Logger logger(9600);
 WifiConnector wifi(logger, WIFI_SSID, WIFI_PASSWORD);
 CommandsProvider cmdProvider;
-CommandsListenerGmail *cmdListenerGmail;
+//CommandsListenerGmail *cmdListenerGmail;
 CommandsListenerTelegram *cmdListenerTelegram;
-std::string mailUser = AC_GMAIL_USER;
-std::string mailPassword = AC_GMAIL_PASSWORD;
-std::string mailCmdIdentifier = "AC Command";
+//std::string mailUser = AC_GMAIL_USER;
+//std::string mailPassword = AC_GMAIL_PASSWORD;
+//std::string mailCmdIdentifier = "AC Command";
 
-//AcIrCommands acRemote(21);
-//AcIrCommands acRemote;
+RgbLed rgbLed(25, 26, 27);
+AcController acController(21, rgbLed, logger);
 
 void setup()
 {
     logger.logLine("Starting....");
+    AcIrCommands::setAcController(acController);
+    AcIrCommands::setRgbLed(rgbLed);
+
     cmdProvider.registerCommand("Cool", AcIrCommands::setCoolCommand);
     cmdProvider.registerCommand("Heat", AcIrCommands::setHeatCommand);
     cmdProvider.registerCommand("Off",  AcIrCommands::setOff);
-    cmdProvider.registerCommand("set", SetPinCommands::setPin);
-    cmdProvider.registerCommand("unset", SetPinCommands::unsetPin);
+    cmdProvider.registerCommand("Status", AcIrCommands::setAcStatus);
+    cmdProvider.registerCommand("Timer", TimedCommands::setTimer);
+    
+    cmdProvider.registerCommand("Time", TimeManager::timeCommand);
+    
+    //cmdProvider.registerCommand("set", SetPinCommands::setPin);
+    //cmdProvider.registerCommand("unset", SetPinCommands::unsetPin);
 
     //cmdListenerGmail = new CommandsListenerGmail(logger, wifi, mailUser, mailPassword,
     //                                        20, cmdProvider, mailCmdIdentifier);
@@ -40,16 +51,15 @@ void setup()
     cmdListenerTelegram->start();
 }
 
-electraAcRecordedSender acSender(21);
 int delayMainLoopSec = 10000; //in 1st round wait 10sec for letting all to start correctly
 
 void loop()
 {
     delay(delayMainLoopSec);
-    delayMainLoopSec = 1000;
+    delayMainLoopSec = 5000;
     
-    if (AcIrCommands::checkAndHandleQueue())
+    if (acController.checkAndHandleQueue())
     {
-        delayMainLoopSec = 5000;
+        delayMainLoopSec = 10000;
     }
 }

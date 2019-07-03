@@ -1,7 +1,8 @@
 #pragma once
 
 #include "CommandsProvider.h"
-#include "IAcIrCommands.h"
+//#include "IAcIrCommands.h"
+#include "AcController.h"
 #include "RgbLed.h"
 //#include "Electra-AC-Remote-Encoder/ElectraAcRemoteSender.h"
 #include "electraAcRecordedSender/electraAcRecordedSender.h"
@@ -10,34 +11,20 @@
 class AcIrCommands// : public IAcIrCommands
 {
 public:
-    //AcIrCommands(int ledPin);
+    //AcIrCommands(int irLedPin, RgbLed rgbLed);
+
+    static void setAcController(AcController& controller);
+    static void setRgbLed(RgbLed& led);
+
+    static bool setAcStatus(std::string& cmd,std::string& resultMsg);
 
     static bool setCoolCommand(std::string& cmd,std::string& resultMsg);
     static bool setHeatCommand(std::string& cmd,std::string& resultMsg);
     static bool setOff(std::string& cmd,std::string& resultMsg);
 
-    static void setCoolTemp(int temp);
-    static void setHeatTemp(int temp);
-
-    static bool checkAndHandleQueue();
-
-    static void sendSome();
-
 private:
     static int getTemp(std::string temp);
 
-    static int IRledPin;
-    //static ElectraAcRemoteSender acIrSender;
-    static electraAcRecordedSender acIrSender;
-
-    static RgbLed rgbLed;
-
-public:
-
-    struct AcCmd {
-        bool on;
-        enum _type {cool, heat} type;
-        int temp;
-    };
-    static std::queue<AcCmd> commandsQueue;
+    static RgbLed* rgbLed;
+    static AcController* acController;
 };
