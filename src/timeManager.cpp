@@ -4,7 +4,22 @@
 #include <ctime>
 #include <cstdio>
 
-const int TimeManager::timeStandardToSecs(const string& _time)
+string TimeManager::timeSecsToStandard(const int timeSecs)
+{
+    char numstr[21];
+    int secs = timeSecs;
+    int hours = (secs / 3600);
+    int minutes = (secs % 3600) / 60;
+    string result = "";
+    sprintf(numstr,"%02d",hours);
+    result += numstr;
+    result += ":";
+    sprintf(numstr,"%02d",minutes);
+    result += numstr;
+    return result;
+}
+
+int TimeManager::timeStandardToSecs(const string& _time)
 {
     #define checkDigit(ch, low, high) if (ch > '9'+high || ch < '0'+low) return -1
 	auto ch2int = [](char c) {return int(c - '0'); };
@@ -66,15 +81,5 @@ int TimeManager::getSecondsInDay()
 
 string TimeManager::getTimeInDay()
 {
-    char numstr[21];
-    int secs = getSecondsInDay();
-    int hours = (secs / 3600);
-    int minutes = (secs % 3600) / 60;
-    string result = "";
-    sprintf(numstr,"%02d",hours);
-    result += numstr;
-    result += ":";
-    sprintf(numstr,"%02d",minutes);
-    result += numstr;
-    return result;
+    return timeSecsToStandard(getSecondsInDay());
 }

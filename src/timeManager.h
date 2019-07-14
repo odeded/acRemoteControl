@@ -9,7 +9,8 @@ class TimeManager
 {
     //standard time -> 16:45
 public:
-    static const int timeStandardToSecs(const string& _time); 
+    static int    timeStandardToSecs(const string& _time); 
+    static string timeSecsToStandard(const int timeSecs);
 
     static bool setTime(const string& _time);
 

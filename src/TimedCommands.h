@@ -4,15 +4,29 @@
 
 #include <string>
 #include <queue>
+#include <list>
 #include <tuple>
+#include <mutex>
+#include <condition_variable>
+#include "Esp32Thread.h"
 
 using namespace std;
 
 class TimedCommands {
 public:
     static bool setTimer(std::string &cmd, std::string &resultMsg);
+    static bool setMutex(std::string &cmd, std::string &resultMsg);
 
-    static void handleTimedCommands();
+    void handleTimedCommands();
+
+    static TimedCommands* get();
+    TimedCommands();
+    void setParams(AcController& controller, Logger& _logger);
+
+    void getTimersStatus(string& res);
+
+    void mainLoop(void*);
+    void unlockMainLoop();
 
 private:
     struct Command
@@ -28,9 +42,26 @@ private:
     };
     static bool parseCommand(const string, Command& on, Command& off, string& errorMsg);
 
-    static int parseTimeFromString(const string timeStr);
-    static void addCommand(const Command);
+    int parseTimeFromString(const string timeStr);
+    void addCommand(const Command);
+    void clearList();
+    void checkAndSendCommand();
+    
+    chrono::seconds getTimeWait();
 
-    using commandsQueue=std::queue<Command>;
-    static commandsQueue cmdQueue;
+    static TimedCommands* instance;
+
+    using TimedCommandsQueue = std::list<Command>;
+    TimedCommandsQueue timedCommandsQueue;
+    
+    Esp32Thread<TimedCommands> thread;
+    mutex threadMutex;
+    unique_lock<mutex> threadLock;
+    condition_variable cv;
+
+    AcController* acController;
+    Logger* logger;
+
+	const int LIST_BEGIN = -1;
+	const int LIST_END = 5555555;
 };

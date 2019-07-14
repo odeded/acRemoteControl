@@ -1,6 +1,6 @@
 #include "AcIrCommands.h"
-//#include "Electra-AC-Remote-Encoder/electraAcRemoteSender.h"
-#include "electraAcRecordedSender/electraAcRecordedSender.h"
+#include "TimedCommands.h"
+#include "timeManager.h"
 #include <Arduino.h>
 
 RgbLed* AcIrCommands::rgbLed = nullptr;
@@ -23,7 +23,12 @@ bool AcIrCommands::setAcStatus(string& cmd, string& resultMsg)
 
     if (cmd.empty())
     {
-        acController->fillStatus(resultMsg);
+        string str;
+        resultMsg = TimeManager::getTimeInDay();
+        acController->fillStatus(str);
+        resultMsg += "\n" + str;
+        TimedCommands::get()->getTimersStatus(str);
+        resultMsg += "\n" + str;
         return true;
     }
 

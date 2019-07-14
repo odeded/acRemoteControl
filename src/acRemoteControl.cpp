@@ -31,12 +31,14 @@ void setup()
     logger.logLine("Starting....");
     AcIrCommands::setAcController(acController);
     AcIrCommands::setRgbLed(rgbLed);
+    TimedCommands::get()->setParams(acController, logger);
 
     cmdProvider.registerCommand("Cool", AcIrCommands::setCoolCommand);
     cmdProvider.registerCommand("Heat", AcIrCommands::setHeatCommand);
     cmdProvider.registerCommand("Off",  AcIrCommands::setOff);
     cmdProvider.registerCommand("Status", AcIrCommands::setAcStatus);
     cmdProvider.registerCommand("Timer", TimedCommands::setTimer);
+    cmdProvider.registerCommand("mutex", TimedCommands::setMutex);
     
     cmdProvider.registerCommand("Time", TimeManager::timeCommand);
     
@@ -49,6 +51,8 @@ void setup()
     
     cmdListenerTelegram = new CommandsListenerTelegram(logger, wifi, cmdProvider);
     cmdListenerTelegram->start();
+
+    //TimedCommands::get();
 }
 
 int delayMainLoopSec = 10000; //in 1st round wait 10sec for letting all to start correctly

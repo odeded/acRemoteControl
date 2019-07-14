@@ -1,3 +1,4 @@
+#include "FreeRTOS.h"
 #include "freertos/task.h"
 #include <memory>
 #include <functional>

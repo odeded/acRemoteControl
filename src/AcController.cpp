@@ -1,6 +1,7 @@
 #include "AcController.h"
 
-AcController::AcController(int irLed, RgbLed &rgbled, Logger &_logger) : acIrSender(irLed), rgbLed(rgbled), logger(_logger)
+AcController::AcController(int irLed, RgbLed &rgbled, Logger &_logger) : 
+    acIrSender(irLed), rgbLed(rgbled), logger(_logger)
 {
     currentStatus.on = false;
     setCurrentStatus(currentStatus);
